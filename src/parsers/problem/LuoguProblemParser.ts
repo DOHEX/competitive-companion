@@ -12,6 +12,8 @@ export class LuoguProblemParser extends Parser {
     const elem = htmlToElement(html);
     const task = new TaskBuilder('Luogu').setUrl(url);
 
+    task.setName(this.parseNameFromUrl(url));
+
     if (elem.querySelector('.main-container') !== null) {
       this.parseFromPage(task, elem);
     } else {
@@ -21,8 +23,14 @@ export class LuoguProblemParser extends Parser {
     return task.build();
   }
 
+  private parseNameFromUrl(url: string): string {
+    const regex = /\/problem\/([A-Za-z0-9]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : 'Unknown';
+  }
+
   private parseFromPage(task: TaskBuilder, elem: Element): void {
-    task.setName(elem.querySelector('h1 > span').textContent.trim());
+    //task.setName(elem.querySelector('h1 > span').textContent.trim());
 
     const timeLimitStr = elem.querySelector('.stat > .field:nth-child(3) > .value').textContent;
     task.setTimeLimit(parseFloat(timeLimitStr) * 1000);
@@ -43,12 +51,12 @@ export class LuoguProblemParser extends Parser {
       const script = scriptElem.textContent;
       if (script.startsWith('window._feInjection')) {
         const startQuoteIndex = script.indexOf('"');
-        const endQuoteIndex = script.substr(startQuoteIndex + 1).indexOf('"');
-        const encodedData = script.substr(startQuoteIndex + 1, endQuoteIndex);
+        const endQuoteIndex = script.slice(startQuoteIndex + 1).indexOf('"');
+        const encodedData = script.slice(startQuoteIndex + 1, endQuoteIndex);
 
         const data = JSON.parse(decodeURIComponent(encodedData)).currentData.problem;
 
-        task.setName(`${data.pid} ${data.title}`.trim());
+        //task.setName(`${data.pid} ${data.title}`.trim());
 
         task.setTimeLimit(Math.max(...data.limits.time));
         task.setMemoryLimit(Math.max(...data.limits.memory) / 1024);
