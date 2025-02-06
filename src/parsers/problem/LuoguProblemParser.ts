@@ -24,7 +24,7 @@ export class LuoguProblemParser extends Parser {
   }
 
   private parseNameFromUrl(url: string): string {
-    const regex = /\/problem\/([A-Za-z0-9]+)/;
+    const regex = /\/problem\/([A-Za-z0-9_]+)/;
     const match = url.match(regex);
     return match ? match[1] : 'Unknown';
   }
